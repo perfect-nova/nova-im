@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Nova Chat · 系统架构</title>
+	<meta name="description" content="模块划分、消息链路、序号同步、接口地图和部署依赖。" />
+	<link rel="stylesheet" href="assets/site.css" />
+	<script type="text/javascript">
+		(function(c,l,a,r,i,t,y){
+			c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+			t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+			y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+		})(window, document, "clarity", "script", "yyirl6affk");
+	</script>
+</head>
+<body>
+	<header class="nav">
+		<div class="nav-bar">
+		<div class="brand">NOVA <i>CHAT</i></div>
+		<nav>
+			<a href="index.html">首页</a>
+			<a class="hide-sm" href="#parts">组成</a>
+			<a class="hide-sm" href="#flow">链路</a>
+			<a class="hide-sm" href="#api">接口</a>
+			<a class="hide-sm" href="#deploy">部署</a>
+			<a class="cta" href="index.html#buy">联系购买</a>
+		</nav>
+		</div>
+	</header>
+
+	<div class="hero">
+		<div class="wrap hero-grid">
+			<div>
+				<div class="kicker">架构</div>
+				<h1>写库、队列、长连接分成三层</h1>
+				<p class="lead">业务服务负责落库和接口。消息队列把投递从写接口里拆出去。长连接机器只服务当时在线的人。群消息全群共用一条记录，客户端用序号记住自己的进度。</p>
+				<div class="row"><a class="btn ghost" href="index.html#demo">返回看演示</a></div>
+			</div>
+			<figure class="frame">
+				<img class="clickable" src="assets/admin-dashboard.jpg" alt="运行概览" />
+				<figcaption>后台把在线人数、私聊和群消息量放在同一张图上</figcaption>
+			</figure>
+		</div>
+	</div>
+
+	<section id="parts">
+		<div class="wrap">
+			<h2>四端各管一块</h2>
+			<table>
+				<thead><tr><th>部分</th><th>职责</th></tr></thead>
+				<tbody>
+					<tr><td>后端</td><td>账号、好友、群、消息、增量同步、钱包、朋友圈、WebSocket、文件、接口加密</td></tr>
+					<tr><td>运营后台</td><td>用户与封禁、群、消息、钱包审核、朋友圈、角色菜单、参数、登录和操作日志</td></tr>
+					<tr><td>网页端</td><td>浏览器里的会话、通讯录、朋友圈、钱包和一对一通话</td></tr>
+					<tr><td>App</td><td>H5、Android、iOS。会话和消息进本地库，打开时按序号补齐</td></tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<section id="flow" class="band">
+		<div class="wrap">
+			<h2>一条消息怎么走</h2>
+			<p class="path">客户端
+  │  业务接口                         长连接
+  ▼                                    ▼
+业务服务（写库、同步、钱包）          长连接机器（可多台）
+  ├─ 数据库   消息和关系的正式记录
+  ├─ 缓存     会话摘要、在线位置、登录态
+  └─ 消息队列 ──只投给有人在线的机器──┘
+当时不在线：下次打开，按消息序号把缺的补上</p>
+			<div class="split" style="margin-top:22px">
+				<figure class="frame">
+					<img class="clickable" src="assets/web-groups.jpg" alt="群" />
+					<figcaption>群列表对应的是关系数据，不是按成员复制的消息表</figcaption>
+				</figure>
+				<div>
+					<article class="card"><h3>群</h3><p>插入一次，序号在这个群里递增。推送前先看哪几台机器上有本群的人。会话列表更新摘要。</p></article>
+					<article class="card"><h3>私聊</h3><p>同样有会话内递增序号。对方在线时，队列只打到对方那一台。对方不在线，记录留在库里等同步。</p></article>
+					<article class="card"><h3>手机</h3><p>本地保存会话、消息、好友、群和每个会话的同步进度。推送和同步写的是同一条记录。</p></article>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section>
+		<div class="wrap split">
+			<div>
+				<h2>序号和加密</h2>
+				<p class="muted">打开应用时，先问哪些会话落后，再只取序号更大的消息，然后把本地进度往后挪。好友和群资料有自己的版本，没变就跳过全量。</p>
+				<p class="muted">业务 JSON 用一次性 AES 加密，密钥用服务器公钥包住，私钥只在服务器。上传文件不走这层。线上仍然使用 HTTPS。登录按账号和设备计失败次数，连续失败会锁定；新设备或失败达到次数后还要手机或邮箱验证码。信任设备有期限和数量上限。密码只存哈希，管理端可以再开动态口令。</p>
+			</div>
+			<figure class="phone">
+				<img class="clickable" src="assets/app-messages.jpg" alt="本地会话" />
+			</figure>
+		</div>
+	</section>
+
+	<section id="api" class="band">
+		<div class="wrap">
+			<h2>用户端接口地图</h2>
+			<p class="muted">业务接口为 POST，登录后携带访问令牌。向前补消息走同步。</p>
+			<table>
+				<thead><tr><th>范围</th><th>做什么</th></tr></thead>
+				<tbody>
+					<tr><td>认证与资料</td><td>验证码、登录风控（失败锁定、新设备验证、信任设备）、注册、找回密码、改资料、改密、绑定手机和邮箱</td></tr>
+					<tr><td>会话</td><td>列表、清未读、置顶、删除</td></tr>
+					<tr><td>好友</td><td>列表、分组、搜索、申请、备注、免打扰、删除</td></tr>
+					<tr><td>群</td><td>创建、搜索、加入、资料、成员、邀请、踢人、管理员、禁言、转让、退群、解散、公告</td></tr>
+					<tr><td>审核</td><td>好友申请和群邀请的通过、拒绝、取消</td></tr>
+					<tr><td>消息</td><td>向旧翻历史、发送、撤回、转发</td></tr>
+					<tr><td>同步</td><td>先看哪些会话落后，再按序号拉单个或一批会话</td></tr>
+					<tr><td>系统消息</td><td>运营通知挤在一个系统会话里，和私聊里的业务提示分开</td></tr>
+					<tr><td>朋友圈</td><td>发布、动态、封面、点赞、评论。可见范围可以是好友、仅自己、部分可见或不给谁看</td></tr>
+					<tr><td>钱包</td><td>开通、账单、充值、提现、转账、红包。资金气泡由服务端写入</td></tr>
+					<tr><td>音视频</td><td>签发通话凭证，长连接传信令，结束后写通话记录。媒体走 WebRTC</td></tr>
+					<tr><td>上传</td><td>图片、视频、文件</td></tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<section id="deploy">
+		<div class="wrap split">
+			<div>
+				<h2>部署要准备的组件</h2>
+				<p class="muted">JDK 21、MySQL 8、Redis、RabbitMQ 是必须的。要上传文件就加 MinIO。要跨网通话就加 eturnal，并和后端使用同一把密钥。生产用 Nginx 对外。数据库、缓存、队列不要对公网开放。同机部署建议 8GB 内存以上。</p>
+				<p class="muted">数据库、缓存、队列和对象存储可以用容器一起拉起。跨网通话的中继要和业务服务使用同一把密钥，并填写服务器的公网地址。</p>
+			</div>
+			<figure class="frame">
+				<img class="clickable" src="assets/admin-users.jpg" alt="用户管理" />
+				<figcaption>用户、封禁和登录记录都在后台处理</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section id="custom">
+		<div class="wrap">
+			<h2>定制开发</h2>
+			<p class="muted">可以在现有模块上继续改：品牌和界面、业务字段与后台菜单、短信或已有账号对接、按你的服务器协助部署。群通话和手机厂商通知栏需要单独评估。说明使用场景、要改的端和预计上线时间即可。</p>
+			<p><a href="index.html#buy">联系购买与定制</a></p>
+		</div>
+	</section>
+
+	<footer><div class="wrap">Nova Chat · 系统架构 · <a href="index.html#buy">联系购买</a></div></footer>
+	<div id="lightbox"><img alt="" /></div>
+	<script src="assets/site.js"></script>
+</body>
+</html>

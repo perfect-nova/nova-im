@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Nova Chat · 可私有化部署的即时通讯</title>
+	<meta name="description" content="后端、运营后台、网页和 App 一次交付。大群消息只存一份，用序号补齐，长连接可以加机器。" />
+	<link rel="stylesheet" href="assets/site.css" />
+	<script type="text/javascript">
+		(function(c,l,a,r,i,t,y){
+			c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+			t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+			y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+		})(window, document, "clarity", "script", "yyirl6affk");
+	</script>
+</head>
+<body>
+	<header class="nav">
+		<div class="nav-bar">
+		<div class="brand">NOVA <i>CHAT</i></div>
+		<nav>
+			<a class="hide-sm" href="#groups">大群</a>
+			<a class="hide-sm" href="#seq">序号</a>
+			<a class="hide-sm" href="#scale">并发</a>
+			<a class="hide-sm" href="#risk">风控</a>
+			<a class="hide-sm" href="#custom">定制</a>
+			<a class="hide-sm" href="#demo">演示</a>
+			<a href="architecture.html">架构</a>
+			<a class="cta" href="#buy">联系购买</a>
+		</nav>
+		</div>
+	</header>
+
+	<div class="hero">
+		<div class="wrap hero-grid">
+			<div>
+				<div class="kicker">源码在你手里 · 数据在你的服务器</div>
+				<h1>聊天、大群、钱包和朋友圈，放在同一套消息序号上</h1>
+				<p class="lead">Nova Chat 一次交付后端、运营后台、网页端，以及覆盖 H5、Android、iOS 的 App。名称和 Logo 可以换成你的品牌，部署完成就能作为自己的通讯产品上线。</p>
+				<div class="row">
+					<a class="btn" href="#buy">联系购买</a>
+					<a class="btn ghost" href="#demo">看网页和APP</a>
+				</div>
+				<div class="pills">
+					<span>群消息只存一份</span>
+					<span>断线按序号补齐</span>
+					<span>长连接可加机器</span>
+					<span>可定制开发</span>
+					<span>登录风控</span>
+				</div>
+			</div>
+			<figure class="frame">
+				<img class="clickable" src="assets/web-chat.jpg" alt="网页会话" />
+				<figcaption>网页端会话：私聊、通话记录和群都在同一列表里</figcaption>
+			</figure>
+		</div>
+	</div>
+
+	<section>
+		<div class="wrap stats">
+			<div class="stat"><b>写库不随人数涨</b><span>万人群也只新增这一条消息，再带上本群递增序号</span></div>
+			<div class="stat"><b>进度就是序号</b><span>手机记住同步到哪一号，下次只拉后面的消息</span></div>
+			<div class="stat"><b>推送看谁在线</b><span>没有本群在线成员的机器，这一跳直接跳过</span></div>
+			<div class="stat"><b>打开应用再补洞</b><span>在线推送加快到达，增量同步负责把缺口补上</span></div>
+		</div>
+	</section>
+
+	<section id="groups" class="band">
+		<div class="wrap split">
+			<div class="copy">
+				<div class="kicker">大群</div>
+				<h2>成员再多，库里仍然只有这一条</h2>
+				<p class="muted">群消息按「群编号 + 序号」保存一次。会话列表只改摘要：最后一条序号、未读、置顶、免打扰。不会按群人数，给每个人各复制一行消息、各写一行会话。</p>
+				<p class="muted">发送前先看哪些长连接机器上有这个群的人。那台机器上没人，就不往那里投。当时不在线的成员，下次打开用序号把中间缺的消息补上。</p>
+			</div>
+			<figure class="frame">
+				<img class="clickable" src="assets/web-groups.jpg" alt="群列表" />
+				<figcaption>网页端可以创建群、处理入群审核，并查看已加入的群</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section id="seq" class="seq-block">
+		<div class="wrap seq-layout">
+			<figure class="phone">
+				<img class="clickable" src="assets/app-chat.jpg" alt="手机聊天" />
+			</figure>
+			<div class="seq-copy">
+				<div class="kicker">序号</div>
+				<h2>每条消息有一个稳定的号，手机靠它记住进度</h2>
+				<ul class="seq-points">
+					<li><b>同一个号</b><span>私聊和群聊进库时分配递增序号。推送、本地库和增量同步认的是这一个号。重试再次到达就覆盖这一条，撤回也改这一条的状态。</span></li>
+					<li><b>只补缺口</b><span>手机记下每个会话已经同步到的序号。登录、重连、回到前台时，只拉比它更大的消息。</span></li>
+					<li><b>资料看版本</b><span>好友和群资料另有版本。没有变化时，不把列表重新下载一遍。</span></li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<section class="band">
+		<div class="wrap split phone-side">
+			<div class="copy">
+				<div class="kicker">消息种类</div>
+				<h2>文字、图片、文件、转账和红包走同一条会话</h2>
+				<p class="muted">支持表情、语音、视频、名片、引用、转发、已读和 @。转账、红包由钱包服务写入会话，客户端不能自己拼一条资金气泡。通话结束后，会话里留下语音或视频记录。</p>
+			</div>
+			<figure class="phone">
+				<img class="clickable" src="assets/app-messages.jpg" alt="消息列表" />
+				<figcaption>手机会话列表。头像旁边是最近一条摘要和时间</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section id="scale">
+		<div class="wrap">
+			<div class="kicker">并发</div>
+			<h2>在线变多时，加的是长连接机器</h2>
+			<p class="muted">用户挂在某一台 WebSocket 上。业务服务写完数据库，把投递交给消息队列，发消息接口不用等所有人收完。私聊只投到对方所在的那一台。同时在线规模取决于你的机器和带宽，这套结构让写库不随群人数放大。</p>
+			<div class="cards">
+				<article class="card"><h3>队列解开写和推</h3><p>入库和推送分开。连接层压力上去时，增加长连接机器，业务进程继续处理接口。</p></article>
+				<article class="card"><h3>同步按进度拉</h3><p>重连时按序号增量拉取，并限制客户端自己的并发。读、写、资金和验证码按用户限速。</p></article>
+				<article class="card"><h3>弱网先看本地</h3><p>会话和消息在手机本地库。网络恢复后，再用序号把缺口补上。</p></article>
+			</div>
+		</div>
+	</section>
+
+	<section class="band">
+		<div class="wrap split reverse">
+			<figure class="frame">
+				<img class="clickable" src="assets/web-wallet.jpg" alt="钱包" />
+				<figcaption>站内钱包：余额、冻结金额和实名状态</figcaption>
+			</figure>
+			<div class="copy">
+				<div class="kicker">钱包与朋友圈</div>
+				<h2>账本和动态跟聊天用同一套账号</h2>
+				<p class="muted">钱包支持实名开通、转账、拼手气、等额和专属红包，充值和提现由后台人工确认。朋友圈可以发图文或视频，并设置好友可见、仅自己、部分可见或不给谁看。</p>
+				<p class="muted">业务接口的 JSON 用一次性 AES 加密，密钥再用 RSA 公钥包住，私钥只在服务器。登录密码和钱包安全密码哈希保存。</p>
+			</div>
+		</div>
+	</section>
+
+	<section>
+		<div class="wrap split">
+			<div class="copy">
+				<div class="kicker">运营后台</div>
+				<h2>在线、消息量和待办放在一块看</h2>
+				<p class="muted">可以查用户、封禁、看群和消息、审核钱包、管理朋友圈、配置角色菜单。登录和后台操作留有日志。资金类订单由运营确认，没有第三方支付自动到账。</p>
+			</div>
+			<figure class="frame">
+				<img class="clickable" src="assets/admin-dashboard.jpg" alt="后台概览" />
+				<figcaption>后台首页：今日消息、当前在线和待办队列</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section id="demo" class="band">
+		<div class="wrap">
+			<div class="kicker">演示</div>
+			<h2>网页横屏，App 竖屏，账号是同一套</h2>
+			<p class="muted">下面两段是产品实拍。网页版大约 2 分钟，App 大约 4 分钟。</p>
+			<div class="videos">
+				<figure class="frame">
+					<video controls preload="metadata" poster="assets/web-chat.jpg" playsinline>
+						<source src="assets/web-demo.mp4" type="video/mp4" />
+					</video>
+					<figcaption>网页版</figcaption>
+				</figure>
+				<figure class="phone">
+					<video controls preload="metadata" poster="assets/app-messages.jpg" playsinline>
+						<source src="assets/h5-demo.mp4" type="video/mp4" />
+					</video>
+				</figure>
+			</div>
+		</div>
+	</section>
+
+	<section>
+		<div class="wrap">
+			<div class="kicker">更多界面</div>
+			<h2>联系人、朋友圈、登录和用户管理</h2>
+			<div class="cards" style="margin-top:16px">
+				<figure class="frame"><img class="clickable" src="assets/app-contacts.jpg" alt="联系人" /><figcaption>手机联系人，可进群聊</figcaption></figure>
+				<figure class="frame"><img class="clickable" src="assets/app-moments.jpg" alt="朋友圈" /><figcaption>朋友圈：图片、点赞和评论</figcaption></figure>
+				<figure class="frame"><img class="clickable" src="assets/app-profile.jpg" alt="我的" /><figcaption>我的：钱包、账号和设置</figcaption></figure>
+				<figure class="frame"><img class="clickable" src="assets/web-notices.jpg" alt="服务通知" /><figcaption>网页服务通知：实名、充值、转账</figcaption></figure>
+				<figure class="frame"><img class="clickable" src="assets/admin-login.jpg" alt="后台登录" /><figcaption>运营后台登录</figcaption></figure>
+				<figure class="frame"><img class="clickable" src="assets/admin-users.jpg" alt="用户管理" /><figcaption>用户查询、重置密码和封禁</figcaption></figure>
+			</div>
+		</div>
+	</section>
+
+	<section id="risk" class="band">
+		<div class="wrap split phone-side">
+			<div class="copy">
+				<div class="kicker">登录风控</div>
+				<h2>密码对了也不等于能直接进来</h2>
+				<p class="muted">登录按账号和设备分别计失败次数。连续失败会锁定一段时间。失败达到次数后，即使密码正确，也要再验证手机或邮箱。新设备不在信任列表里时，同样要验证码。</p>
+				<p class="muted">验证通过后的设备会记为信任设备，有有效期和数量上限，超出后淘汰最久没用的。登录和注册都要带设备号。密码和钱包安全密码只存哈希。管理端可以再开动态口令。这些次数、锁定时长和信任设备数量都可以配置。</p>
+			</div>
+			<figure class="phone">
+				<img class="clickable" src="assets/app-login.jpg" alt="登录" />
+				<figcaption>新设备登录会再要一次验证码，发到已绑定的邮箱或手机</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section id="custom">
+		<div class="wrap">
+			<div class="kicker">定制</div>
+			<h2>可以按你的业务继续开发</h2>
+			<p class="muted">购买源码之后，品牌、页面、业务规则和部署都可以接着改。消息序号、大群存储和长连接这套结构保留，在上面加你的功能。</p>
+			<div class="cards">
+				<article class="card"><h3>品牌与界面</h3><p>更换名称、Logo 和主题色。网页、H5、Android、iOS 的页面按使用场景调整。</p></article>
+				<article class="card"><h3>业务功能</h3><p>在私聊、群、朋友圈、钱包和后台菜单上增加字段、审核流程或运营能力。</p></article>
+				<article class="card"><h3>对接与部署</h3><p>对接短信、邮件或已有账号体系。也可以按服务器环境协助完成 Docker、证书和上线。</p></article>
+			</div>
+		</div>
+	</section>
+
+	<section id="buy" class="band">
+		<div class="wrap">
+			<div class="kicker">购买</div>
+			<h2>联系购买</h2>
+			<p class="muted">留言时写上使用场景、是否需要定制开发或协助部署、预计上线时间。源码部署在你的服务器上。服务器、域名、短信和对象存储另备。音视频目前是一对一，群通话可以单独评估。</p>
+			<ul class="buy-list">
+				<li><b>微信</b><span data-contact="wechat">添加后说明交付方式和是否需要协助部署。</span></li>
+				<li><b>QQ</b><span data-contact="qq">留言写上场景、是否需要协助部署、预计上线时间。</span></li>
+			</ul>
+			<p><a href="architecture.html">查看系统架构</a></p>
+		</div>
+	</section>
+
+	<footer><div class="wrap">Nova Chat · 私有化即时通讯源码</div></footer>
+	<div id="lightbox"><img alt="" /></div>
+	<script src="assets/site.js"></script>
+</body>
+</html>
